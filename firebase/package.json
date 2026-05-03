@@ -1,0 +1,19 @@
+{
+  "name": "tropicaguide-firebase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:rules": "jest --forceExit",
+    "seed": "node emulator/seed.js"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase-admin": "^13.0.0",
+    "jest": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000,
+    "testMatch": ["**/test/**/*.js"]
+  }
+}
