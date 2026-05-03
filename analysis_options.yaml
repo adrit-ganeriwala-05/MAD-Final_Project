@@ -1,0 +1,15 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    # Generated files — exempt from all rules
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+  errors:
+    # Treat missing return as a warning during active development
+    missing_return: warning
+
+linter:
+  rules:
+    # Generated code in lib/ triggers this; excluded above but belt+suspenders
+    lines_longer_than_80_chars: false
