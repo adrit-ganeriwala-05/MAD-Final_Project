@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635161622057",
+    "project_id": "tropicaguide-adrit-2026",
+    "storage_bucket": "tropicaguide-adrit-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635161622057:android:fd11e40649f05da0f0ce38",
+        "android_client_info": {
+          "package_name": "com.adritg.tropicaguide"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5KhbMm7MzbRqnMh5ZWhyDAT_HFM-HxOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
