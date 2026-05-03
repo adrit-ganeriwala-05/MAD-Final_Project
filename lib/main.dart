@@ -27,9 +27,14 @@ GoRouter router(Ref ref) => buildRouter(ref);
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  appLogger.i('Starting app — useEmulator: ${AppConfig.useEmulator}');
+
+  // Guard against duplicate-app error on hot restart
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   if (AppConfig.useEmulator) {
     await _connectEmulators();
@@ -46,13 +51,30 @@ Future<void> main() async {
   runApp(const ProviderScope(child: TropicaGuideApp()));
 }
 
+// Connects every Firebase SDK to the Local Emulator Suite.
+// Each SDK is wrapped independently so an "already configured" throw on
+// hot-restart (auth/storage) doesn't skip the Firestore connection.
 Future<void> _connectEmulators() async {
   final host = AppConfig.emulatorHost;
-  await FirebaseAuth.instance.useAuthEmulator(host, 9099);
-  FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-  await FirebaseStorage.instance.useStorageEmulator(host, 9199);
-  FirebaseFunctions.instanceFor(region: 'us-central1')
-      .useFunctionsEmulator(host, 5001);
+
+  try {
+    await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+  } on Exception catch (e) {
+    appLogger.w('⚠️ Auth emulator: $e');
+  }
+
+  try {
+    FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+  } on Exception catch (e) {
+    appLogger.w('⚠️ Firestore emulator: $e');
+  }
+
+  try {
+    await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+  } on Exception catch (e) {
+    appLogger.w('⚠️ Storage emulator: $e');
+  }
+
   appLogger.i('🔧 Firebase emulators connected → $host');
 }
 

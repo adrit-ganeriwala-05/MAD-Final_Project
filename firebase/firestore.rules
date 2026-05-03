@@ -41,7 +41,9 @@ service cloud.firestore {
 
     match /trips/{tripId} {
       /// Only trip members can read a trip.
-      allow read: if isTripMember(tripId);
+      /// Uses resource.data directly (not get()) to avoid a circular reference
+      /// when the rules engine evaluates list queries on this collection.
+      allow read: if isSignedIn() && request.auth.uid in resource.data.memberIds;
 
       /// Any signed-in user can create a trip if they include themselves
       /// as a member and provide required fields.

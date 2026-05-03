@@ -1,36 +1,35 @@
 /**
  * Seed script for the Firebase Local Emulator Suite.
- *
  * Run with: node firebase/emulator/seed.js
- *
- * Populates:
- *   - 2 users (alice, bob)
- *   - 2 trips (alice owns both; bob is member of trip 2)
- *   - 3 activities on trip 1
- *   - 4 checklist items on trip 1
- *
- * Requires emulators to be running:
- *   firebase emulators:start --only auth,firestore,storage
  */
 
-const { initializeApp } = require('firebase-admin/app');
+// ── MUST be set before initializeApp ────────────────────────────────────────
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
+process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
+process.env.FIREBASE_STORAGE_EMULATOR_HOST = '127.0.0.1:9199';
+
+const { initializeApp, applicationDefault } = require('firebase-admin/app');
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
-
-initializeApp({ projectId: 'tropicaguide-adrit-2026' });
+// firebase-admin v13 requires the credential to be instanceof its own internal
+// credential classes (ServiceAccountCredential or ApplicationDefaultCredential).
+// A plain object with getAccessToken() fails the type check and throws.
+// applicationDefault() creates the right type; when FIRESTORE_EMULATOR_HOST is
+// set the Firestore gRPC client uses insecure creds + "Bearer owner" and never
+// calls getAccessToken(), so no real service account is needed.
+initializeApp({
+  projectId: 'tropicaguide-adrit-2026',
+  credential: applicationDefault(),
+});
 
 const db = getFirestore();
 const auth = getAuth();
-
 const now = Timestamp.now();
 
 async function seed() {
   console.log('🌱 Seeding emulator...');
 
-  // ── Create auth users ────────────────────────────────────────────────────
   let aliceUid, bobUid;
 
   try {
@@ -65,7 +64,6 @@ async function seed() {
     } else throw e;
   }
 
-  // ── User profiles ────────────────────────────────────────────────────────
   await db.collection('users').doc(aliceUid).set({
     uid: aliceUid,
     email: 'alice@demo.com',
@@ -92,13 +90,12 @@ async function seed() {
 
   console.log('✅ User profiles written');
 
-  // ── Trip 1 — Cancún (alice only) ─────────────────────────────────────────
   const trip1Ref = db.collection('trips').doc('trip-cancun-demo');
   await trip1Ref.set({
     tripId: 'trip-cancun-demo',
     title: 'Cancún Spring Break',
     destination: 'Cancún, Mexico',
-    coverImagePath: 'assets/seed_images/destinations/cancun.jpg',
+    coverImagePath: null,
     startDate: Timestamp.fromDate(new Date('2026-06-01')),
     endDate: Timestamp.fromDate(new Date('2026-06-07')),
     totalBudget: 150000,
@@ -114,7 +111,6 @@ async function seed() {
     updatedAt: now,
   });
 
-  // Activities for trip 1
   const activities = [
     {
       id: 'act-snorkel',
@@ -124,7 +120,7 @@ async function seed() {
       locationName: 'Isla Mujeres',
       estimatedCost: 8000,
       durationMinutes: 240,
-      imageAssetPath: 'assets/seed_images/activities/snorkel.jpg',
+      imageAssetPath: null,
       position: 1,
       scoreDistance: 85,
       scoreBudget: 70,
@@ -138,7 +134,7 @@ async function seed() {
       locationName: 'Downtown Cancún',
       estimatedCost: 2000,
       durationMinutes: 90,
-      imageAssetPath: 'assets/seed_images/activities/tacos.jpg',
+      imageAssetPath: null,
       position: 2,
       scoreDistance: 60,
       scoreBudget: 95,
@@ -152,7 +148,7 @@ async function seed() {
       locationName: 'Chichen Itza',
       estimatedCost: 12000,
       durationMinutes: 480,
-      imageAssetPath: 'assets/seed_images/activities/chichen.jpg',
+      imageAssetPath: null,
       position: 3,
       scoreDistance: 40,
       scoreBudget: 55,
@@ -172,7 +168,6 @@ async function seed() {
     });
   }
 
-  // Checklist for trip 1
   const checklistItems = [
     { id: 'item-sunscreen', label: 'Sunscreen SPF 50+', category: 'packing', position: 1 },
     { id: 'item-passport', label: 'Passport', category: 'document', position: 2 },
@@ -194,13 +189,12 @@ async function seed() {
 
   console.log('✅ Trip 1 (Cancún) seeded with activities and checklist');
 
-  // ── Trip 2 — Bali (alice + bob) ──────────────────────────────────────────
   const trip2Ref = db.collection('trips').doc('trip-bali-demo');
   await trip2Ref.set({
     tripId: 'trip-bali-demo',
     title: 'Bali Retreat',
     destination: 'Bali, Indonesia',
-    coverImagePath: 'assets/seed_images/destinations/bali.jpg',
+    coverImagePath: null,
     startDate: Timestamp.fromDate(new Date('2026-09-15')),
     endDate: Timestamp.fromDate(new Date('2026-09-22')),
     totalBudget: 200000,
