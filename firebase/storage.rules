@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    /// User avatars — only the owner can write; signed-in users can read.
+    match /avatars/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    /// Activity images — any signed-in user can read;
+    /// write restricted to authenticated users (trip membership
+    /// enforced at the Firestore layer).
+    match /trips/{tripId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    /// Seed / demo assets — public read, no write from clients.
+    match /seed/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
