@@ -12,7 +12,12 @@
           "package_name": "com.adritg.tropicaguide"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "635161622057-j2s1ivfpi4ub13baer0ah5ci7v5n5e8l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB5KhbMm7MzbRqnMh5ZWhyDAT_HFM-HxOs"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635161622057-j2s1ivfpi4ub13baer0ah5ci7v5n5e8l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
