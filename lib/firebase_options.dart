@@ -40,7 +40,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-  /// Firebase options for Android.
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB5KhbMm7MzbRqnMh5ZWhyDAT_HFM-HxOs',
     appId: '1:635161622057:android:fd11e40649f05da0f0ce38',
@@ -48,4 +47,6 @@ class DefaultFirebaseOptions {
     projectId: 'tropicaguide-adrit-2026',
     storageBucket: 'tropicaguide-adrit-2026.firebasestorage.app',
   );
+
+  /// Firebase options for Android.
 }

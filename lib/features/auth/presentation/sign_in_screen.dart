@@ -124,8 +124,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () =>
-                        context.push(AppRoutes.forgotPassword),
+                    onPressed: () => context.push(AppRoutes.forgotPassword),
                     child: const Text(AppStrings.forgotPassword),
                   ),
                 ),

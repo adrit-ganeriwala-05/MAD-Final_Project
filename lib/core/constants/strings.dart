@@ -1,7 +1,4 @@
 /// UI string constants.
-///
-/// All user-visible strings live here in Phase 1.
-/// Phase 7 migrates these to ARB files for i18n.
 abstract final class AppStrings {
   /// The product name.
   static const String appName = 'TropicaGuide';
@@ -9,8 +6,7 @@ abstract final class AppStrings {
   /// Short marketing tagline.
   static const String tagline = 'Plan together, travel better.';
 
-  // ── Auth ───────────────────────────────────────────────────────────────────
-
+  // ── Auth ──────────────────────────────────────────────────────────────────
   /// Label for the sign-in action.
   static const String signIn = 'Sign In';
 
@@ -33,7 +29,6 @@ abstract final class AppStrings {
   static const String forgotPassword = 'Forgot password?';
 
   // ── Trips ─────────────────────────────────────────────────────────────────
-
   /// Screen title for the dashboard.
   static const String myTrips = 'My Trips';
 
@@ -48,10 +43,8 @@ abstract final class AppStrings {
       'Create your first adventure and start planning together.';
 
   // ── Generic ───────────────────────────────────────────────────────────────
-
   /// Generic error message body.
-  static const String genericError =
-      'Something went wrong. Please try again.';
+  static const String genericError = 'Something went wrong. Please try again.';
 
   /// Retry button label.
   static const String retry = 'Try Again';

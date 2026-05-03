@@ -8,6 +8,9 @@ import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
 import 'package:tropicaguide/features/auth/presentation/forgot_password_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_in_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_up_screen.dart';
+import 'package:tropicaguide/features/itinerary/presentation/add_edit_activity_screen.dart';
+import 'package:tropicaguide/features/itinerary/presentation/itinerary_builder_screen.dart';
+import 'package:tropicaguide/features/trips/presentation/create_trip_screen.dart';
 import 'package:tropicaguide/features/trips/presentation/trip_dashboard_screen.dart';
 
 /// Named route paths.
@@ -23,12 +26,21 @@ abstract final class AppRoutes {
 
   /// Main dashboard.
   static const String home = '/home';
+
+  /// Create trip screen.
+  static const String createTrip = '/create-trip';
+
+  /// Itinerary builder — parameterised by tripId.
+  static String itinerary(String tripId) => '/trips/$tripId/itinerary';
+
+  /// Add activity screen — parameterised by tripId.
+  static String addActivity(String tripId) => '/trips/$tripId/add-activity';
 }
 
 /// A [ChangeNotifier] that wraps the auth state stream.
 ///
 /// GoRouter's refreshListenable accepts a [Listenable]. This notifier
-/// subscribes to [authStateChangesProvider] and calls [notifyListeners]
+/// subscribes to authStateChangesProvider and calls [notifyListeners]
 /// on every emission so the router re-evaluates its redirect guard.
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier(this._ref) {
@@ -39,8 +51,6 @@ class _AuthChangeNotifier extends ChangeNotifier {
 }
 
 /// Builds the app's [GoRouter] with a Riverpod-aware auth guard.
-///
-/// Call this inside a [ProviderScope]-aware context (e.g. a provider).
 GoRouter buildRouter(Ref ref) {
   final notifier = _AuthChangeNotifier(ref);
 
@@ -49,14 +59,11 @@ GoRouter buildRouter(Ref ref) {
     refreshListenable: notifier,
     redirect: (BuildContext context, GoRouterState state) {
       final authAsync = ref.read(authStateChangesProvider);
-      // While loading, don't redirect
       if (authAsync.isLoading) return null;
-
       final signedIn = authAsync.valueOrNull != null;
       final goingToAuth = state.matchedLocation == AppRoutes.signIn ||
           state.matchedLocation == AppRoutes.signUp ||
           state.matchedLocation == AppRoutes.forgotPassword;
-
       if (!signedIn && !goingToAuth) return AppRoutes.signIn;
       if (signedIn && goingToAuth) return AppRoutes.home;
       return null;
@@ -79,6 +86,22 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (_, __) => const TripDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/create-trip',
+        builder: (_, __) => const CreateTripScreen(),
+      ),
+      GoRoute(
+        path: '/trips/:tripId/itinerary',
+        builder: (_, state) => ItineraryBuilderScreen(
+          tripId: state.pathParameters['tripId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/trips/:tripId/add-activity',
+        builder: (_, state) => AddEditActivityScreen(
+          tripId: state.pathParameters['tripId']!,
+        ),
       ),
     ],
   );

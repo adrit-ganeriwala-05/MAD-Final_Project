@@ -78,9 +78,8 @@ class AuthNotifier extends _$AuthNotifier {
   /// Sends a password reset email.
   Future<void> sendPasswordReset({required String email}) async {
     state = const AuthLoading();
-    final result = await ref
-        .read(authRepositoryProvider)
-        .sendPasswordReset(email: email);
+    final result =
+        await ref.read(authRepositoryProvider).sendPasswordReset(email: email);
     state = switch (result) {
       AuthSuccess() => const AuthDone(),
       AuthFailure(:final message) => AuthError(message),
