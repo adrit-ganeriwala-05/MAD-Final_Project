@@ -13,10 +13,8 @@ import 'package:tropicaguide/core/utils/extensions.dart';
 import 'package:tropicaguide/features/auth/presentation/auth_notifier.dart';
 import 'package:tropicaguide/features/trips/domain/trip.dart';
 import 'package:tropicaguide/features/trips/presentation/trips_notifier.dart';
+
 /// The main trip dashboard screen.
-///
-/// Shows a real-time list of trips from Firestore.
-/// Tapping a trip navigates to its itinerary builder.
 class TripDashboardScreen extends ConsumerWidget {
   /// Creates a [TripDashboardScreen].
   const TripDashboardScreen({super.key});
@@ -30,9 +28,15 @@ class TripDashboardScreen extends ConsumerWidget {
         title: const Text(AppStrings.appName),
         actions: [
           IconButton(
+            tooltip: 'Discover activities',
+            icon: const Icon(Icons.explore_outlined),
+            onPressed: () => context.push(AppRoutes.discover),
+          ),
+          IconButton(
             tooltip: AppStrings.signOut,
             icon: const Icon(Icons.logout_outlined),
-            onPressed: () => ref.read(authNotifierProvider.notifier).signOut(),
+            onPressed: () =>
+                ref.read(authNotifierProvider.notifier).signOut(),
           ),
         ],
       ),
@@ -86,12 +90,10 @@ class _TripCard extends StatelessWidget {
 
     return AppCard(
       semanticLabel: 'Trip: ${trip.title}',
-      onTap: () => context.push(AppRoutes.itinerary(trip.tripId)),
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Cover image placeholder ────────────────────────────────────
           Container(
             height: 120,
             width: double.infinity,
@@ -109,7 +111,6 @@ class _TripCard extends StatelessWidget {
               ),
             ),
           ),
-          // ── Trip info ──────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
@@ -153,21 +154,24 @@ class _TripCard extends StatelessWidget {
                   ),
                 ],
                 const Gap(AppSpacing.sm),
-                // Status + member count row
                 Row(
                   children: [
                     _StatusChip(status: trip.status),
                     const Spacer(),
-                    Icon(
-                      Icons.group_outlined,
-                      size: 14,
-                      color: colorScheme.onSurfaceVariant,
+                    // Checklist button
+                    IconButton(
+                      tooltip: 'Packing list',
+                      icon: const Icon(Icons.checklist_rounded),
+                      onPressed: () => context.push(
+                        AppRoutes.checklist(trip.tripId),
+                      ),
                     ),
-                    const Gap(AppSpacing.xs),
-                    Text(
-                      '${trip.memberIds.length}',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                    // Itinerary button
+                    IconButton(
+                      tooltip: 'Itinerary',
+                      icon: const Icon(Icons.map_outlined),
+                      onPressed: () => context.push(
+                        AppRoutes.itinerary(trip.tripId),
                       ),
                     ),
                   ],

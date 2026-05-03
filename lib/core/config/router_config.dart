@@ -8,6 +8,8 @@ import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
 import 'package:tropicaguide/features/auth/presentation/forgot_password_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_in_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_up_screen.dart';
+import 'package:tropicaguide/features/checklist/presentation/checklist_screen.dart';
+import 'package:tropicaguide/features/discovery/presentation/activity_discovery_screen.dart';
 import 'package:tropicaguide/features/itinerary/presentation/add_edit_activity_screen.dart';
 import 'package:tropicaguide/features/itinerary/presentation/itinerary_builder_screen.dart';
 import 'package:tropicaguide/features/trips/presentation/create_trip_screen.dart';
@@ -30,18 +32,20 @@ abstract final class AppRoutes {
   /// Create trip screen.
   static const String createTrip = '/create-trip';
 
+  /// Activity discovery screen.
+  static const String discover = '/discover';
+
   /// Itinerary builder — parameterised by tripId.
   static String itinerary(String tripId) => '/trips/$tripId/itinerary';
 
   /// Add activity screen — parameterised by tripId.
   static String addActivity(String tripId) => '/trips/$tripId/add-activity';
+
+  /// Checklist screen — parameterised by tripId.
+  static String checklist(String tripId) => '/trips/$tripId/checklist';
 }
 
 /// A [ChangeNotifier] that wraps the auth state stream.
-///
-/// GoRouter's refreshListenable accepts a [Listenable]. This notifier
-/// subscribes to authStateChangesProvider and calls [notifyListeners]
-/// on every emission so the router re-evaluates its redirect guard.
 class _AuthChangeNotifier extends ChangeNotifier {
   _AuthChangeNotifier(this._ref) {
     _ref.listen(authStateChangesProvider, (_, __) => notifyListeners());
@@ -92,6 +96,10 @@ GoRouter buildRouter(Ref ref) {
         builder: (_, __) => const CreateTripScreen(),
       ),
       GoRoute(
+        path: '/discover',
+        builder: (_, __) => const ActivityDiscoveryScreen(),
+      ),
+      GoRoute(
         path: '/trips/:tripId/itinerary',
         builder: (_, state) => ItineraryBuilderScreen(
           tripId: state.pathParameters['tripId']!,
@@ -100,6 +108,12 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/trips/:tripId/add-activity',
         builder: (_, state) => AddEditActivityScreen(
+          tripId: state.pathParameters['tripId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/trips/:tripId/checklist',
+        builder: (_, state) => ChecklistScreen(
           tripId: state.pathParameters['tripId']!,
         ),
       ),
