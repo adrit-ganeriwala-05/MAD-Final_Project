@@ -1,45 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tropicaguide/core/constants/spacing.dart';
 import 'package:tropicaguide/core/constants/strings.dart';
 import 'package:tropicaguide/core/ui/app_button.dart';
+import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
+import 'package:tropicaguide/features/auth/presentation/forgot_password_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_in_screen.dart';
+import 'package:tropicaguide/features/auth/presentation/sign_up_screen.dart';
 import 'package:tropicaguide/features/trips/presentation/trip_dashboard_screen.dart';
 
-// ── Phase 1 auth stub ─────────────────────────────────────────────────────────
-// Replaced in Phase 3 with a Riverpod StreamProvider wrapping FirebaseAuth.
-// Sign-in screen writes `true`; sign-out writes `false`.
-// GoRouter's refreshListenable reacts to every change.
-/// Auth state stub used by the router in Phase 1.
-///
-/// Phase 3 replaces this with a Riverpod provider backed by FirebaseAuth.
-final ValueNotifier<bool> authStateNotifier = ValueNotifier<bool>(false);
-
-// ── Route path constants ──────────────────────────────────────────────────────
-
-/// Named path constants — use these everywhere instead of raw strings.
+/// Named route paths.
 abstract final class AppRoutes {
   /// Sign-in screen.
   static const String signIn = '/sign-in';
+
+  /// Sign-up screen.
+  static const String signUp = '/sign-up';
+
+  /// Forgot password screen.
+  static const String forgotPassword = '/forgot-password';
 
   /// Main dashboard.
   static const String home = '/home';
 }
 
-// ── Router instance ───────────────────────────────────────────────────────────
-
-/// The app's singleton [GoRouter] instance.
+/// A [ChangeNotifier] that wraps the auth state stream.
 ///
-/// Created once at startup. All navigation goes through this object.
-final GoRouter appRouter = _buildRouter();
+/// GoRouter's refreshListenable accepts a [Listenable]. This notifier
+/// subscribes to [authStateChangesProvider] and calls [notifyListeners]
+/// on every emission so the router re-evaluates its redirect guard.
+class _AuthChangeNotifier extends ChangeNotifier {
+  _AuthChangeNotifier(this._ref) {
+    _ref.listen(authStateChangesProvider, (_, __) => notifyListeners());
+  }
 
-GoRouter _buildRouter() {
+  final Ref _ref;
+}
+
+/// Builds the app's [GoRouter] with a Riverpod-aware auth guard.
+///
+/// Call this inside a [ProviderScope]-aware context (e.g. a provider).
+GoRouter buildRouter(Ref ref) {
+  final notifier = _AuthChangeNotifier(ref);
+
   return GoRouter(
     initialLocation: AppRoutes.home,
-    refreshListenable: authStateNotifier,
+    refreshListenable: notifier,
     redirect: (BuildContext context, GoRouterState state) {
-      final signedIn = authStateNotifier.value;
-      final goingToAuth = state.matchedLocation.startsWith('/sign-in');
+      final authAsync = ref.read(authStateChangesProvider);
+      // While loading, don't redirect
+      if (authAsync.isLoading) return null;
+
+      final signedIn = authAsync.valueOrNull != null;
+      final goingToAuth = state.matchedLocation == AppRoutes.signIn ||
+          state.matchedLocation == AppRoutes.signUp ||
+          state.matchedLocation == AppRoutes.forgotPassword;
 
       if (!signedIn && !goingToAuth) return AppRoutes.signIn;
       if (signedIn && goingToAuth) return AppRoutes.home;
@@ -50,18 +66,20 @@ GoRouter _buildRouter() {
     routes: [
       GoRoute(
         path: AppRoutes.signIn,
-        builder: (BuildContext context, GoRouterState state) =>
-            const SignInScreen(),
+        builder: (_, __) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.signUp,
+        builder: (_, __) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (_, __) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (BuildContext context, GoRouterState state) =>
-            const TripDashboardScreen(),
+        builder: (_, __) => const TripDashboardScreen(),
       ),
-      // Phase 3 adds: sign-up, forgot-password
-      // Phase 5 adds: /trips/:tripId/itinerary
-      // Phase 6 adds: /trips/:tripId/checklist, /discover
-      // Phase 7 adds: /profile
     ],
   );
 }

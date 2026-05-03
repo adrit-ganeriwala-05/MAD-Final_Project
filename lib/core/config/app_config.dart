@@ -1,3 +1,5 @@
+import 'dart:io';
+
 /// Application environment.
 enum AppEnvironment {
   /// Local development — uses Firebase Local Emulator Suite.
@@ -25,7 +27,12 @@ abstract final class AppConfig {
       _envValue == 'prod' ? AppEnvironment.prod : AppEnvironment.dev;
 
   /// Whether to point Firebase SDKs at the Local Emulator Suite.
-  ///
-  /// Phase 2 reads this flag to call useFirestoreEmulator() etc.
   static bool get useEmulator => environment == AppEnvironment.dev;
+
+  /// The emulator host address.
+  ///
+  /// Android emulators reach the host machine via 10.0.2.2.
+  /// iOS simulators and desktop use localhost.
+  static String get emulatorHost =>
+      Platform.isAndroid ? '10.0.2.2' : 'localhost';
 }

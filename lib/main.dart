@@ -1,29 +1,75 @@
+import 'dart:ui';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:tropicaguide/core/config/app_config.dart';
 import 'package:tropicaguide/core/config/router_config.dart';
 import 'package:tropicaguide/core/constants/strings.dart';
 import 'package:tropicaguide/core/theme/app_theme.dart';
+import 'package:tropicaguide/core/utils/logger.dart';
+import 'package:tropicaguide/firebase_options.dart';
+
+part 'main.g.dart';
+
+/// Provides the [GoRouter] instance with access to Riverpod [Ref].
+@riverpod
+GoRouter router(Ref ref) => buildRouter(ref);
 
 /// Entry point.
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Phase 2 adds: await Firebase.initializeApp(...)
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  if (AppConfig.useEmulator) {
+    await _connectEmulators();
+  }
+
+  FlutterError.onError =
+      FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   runApp(const ProviderScope(child: TropicaGuideApp()));
 }
 
-/// Root widget. Wires theme and routing; no business logic lives here.
-class TropicaGuideApp extends StatelessWidget {
+Future<void> _connectEmulators() async {
+  final host = AppConfig.emulatorHost;
+  await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+  FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+  await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+  FirebaseFunctions.instanceFor(region: 'us-central1')
+      .useFunctionsEmulator(host, 5001);
+  appLogger.i('🔧 Firebase emulators connected → $host');
+}
+
+/// Root widget.
+class TropicaGuideApp extends ConsumerWidget {
   /// Creates [TropicaGuideApp].
   const TropicaGuideApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }
