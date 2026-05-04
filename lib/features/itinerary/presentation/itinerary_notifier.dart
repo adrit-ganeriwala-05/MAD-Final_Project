@@ -1,9 +1,11 @@
+// lib/features/itinerary/presentation/itinerary_notifier.dart
 
-// ignore_for_file: avoid_catches_without_on_clauses
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tropicaguide/core/firebase/firebase_providers.dart';
+import 'package:tropicaguide/core/utils/logger.dart';
 import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
 import 'package:tropicaguide/features/itinerary/data/activity_repository.dart';
 import 'package:tropicaguide/features/itinerary/domain/activity.dart';
@@ -50,7 +52,7 @@ class ItineraryNotifier extends _$ItineraryNotifier {
             description: description,
           );
       state = const AsyncData(null);
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       state = AsyncError(e, st);
     }
   }
@@ -62,7 +64,7 @@ class ItineraryNotifier extends _$ItineraryNotifier {
             tripId: tripId,
             activityId: activityId,
           );
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       state = AsyncError(e, st);
     }
   }
@@ -74,7 +76,40 @@ class ItineraryNotifier extends _$ItineraryNotifier {
             tripId: tripId,
             activities: activities,
           );
-    } catch (e, st) {
+    } on Exception catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  /// Uploads an image for an activity to Firebase Storage.
+  Future<void> uploadActivityImage({
+    required String activityId,
+    required File imageFile,
+  }) async {
+    try {
+      await ref.read(activityRepositoryProvider).uploadActivityImage(
+            tripId: tripId,
+            activityId: activityId,
+            imageFile: imageFile,
+            storage: ref.read(firebaseStorageProvider),
+          );
+      appLogger.i('ItineraryNotifier: uploaded image for $activityId');
+    } on Exception catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  /// Calls the Cloud Function optimiser.
+  Future<void> optimise() async {
+    state = const AsyncLoading();
+    try {
+      final callable = ref
+          .read(firebaseFunctionsProvider)
+          .httpsCallable('optimiseItinerary');
+      await callable.call<Map<String, dynamic>>({'tripId': tripId});
+      state = const AsyncData(null);
+      appLogger.i('ItineraryNotifier: optimised $tripId');
+    } on Exception catch (e, st) {
       state = AsyncError(e, st);
     }
   }

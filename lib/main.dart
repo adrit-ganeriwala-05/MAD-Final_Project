@@ -1,7 +1,8 @@
+// lib/main.dart
+
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -29,7 +30,6 @@ Future<void> main() async {
 
   appLogger.i('Starting app — useEmulator: ${AppConfig.useEmulator}');
 
-  // Guard against duplicate-app error on hot restart
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -51,9 +51,7 @@ Future<void> main() async {
   runApp(const ProviderScope(child: TropicaGuideApp()));
 }
 
-// Connects every Firebase SDK to the Local Emulator Suite.
-// Each SDK is wrapped independently so an "already configured" throw on
-// hot-restart (auth/storage) doesn't skip the Firestore connection.
+/// Connects every Firebase SDK to the Local Emulator Suite.
 Future<void> _connectEmulators() async {
   final host = AppConfig.emulatorHost;
 
@@ -86,11 +84,13 @@ class TropicaGuideApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

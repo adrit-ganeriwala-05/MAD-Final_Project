@@ -1,27 +1,13 @@
-/**
- * Seed script for the Firebase Local Emulator Suite.
- * Run with: node firebase/emulator/seed.js
- */
-
-// ── MUST be set before initializeApp ────────────────────────────────────────
+// MUST be set before initializeApp
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
 process.env.FIREBASE_STORAGE_EMULATOR_HOST = '127.0.0.1:9199';
 
-const { initializeApp, applicationDefault } = require('firebase-admin/app');
+const { initializeApp } = require('firebase-admin/app');
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 
-// firebase-admin v13 requires the credential to be instanceof its own internal
-// credential classes (ServiceAccountCredential or ApplicationDefaultCredential).
-// A plain object with getAccessToken() fails the type check and throws.
-// applicationDefault() creates the right type; when FIRESTORE_EMULATOR_HOST is
-// set the Firestore gRPC client uses insecure creds + "Bearer owner" and never
-// calls getAccessToken(), so no real service account is needed.
-initializeApp({
-  projectId: 'tropicaguide-adrit-2026',
-  credential: applicationDefault(),
-});
+initializeApp({ projectId: 'tropicaguide-adrit-2026' });
 
 const db = getFirestore();
 const auth = getAuth();
@@ -64,6 +50,7 @@ async function seed() {
     } else throw e;
   }
 
+  // ── User profiles ────────────────────────────────────────────────────────
   await db.collection('users').doc(aliceUid).set({
     uid: aliceUid,
     email: 'alice@demo.com',
@@ -90,6 +77,7 @@ async function seed() {
 
   console.log('✅ User profiles written');
 
+  // ── Trip 1 — Cancún (alice only) ─────────────────────────────────────────
   const trip1Ref = db.collection('trips').doc('trip-cancun-demo');
   await trip1Ref.set({
     tripId: 'trip-cancun-demo',
@@ -105,6 +93,7 @@ async function seed() {
       [aliceUid]: { displayName: 'Alice Demo', photoUrl: null },
     },
     createdBy: aliceUid,
+    inviteCode: 'CAN4X9',
     optimisedOrder: [],
     status: 'planning',
     createdAt: now,
@@ -187,8 +176,40 @@ async function seed() {
     });
   }
 
-  console.log('✅ Trip 1 (Cancún) seeded with activities and checklist');
+  // Seed messages for trip 1
+  const messages = [
+    {
+      id: 'msg-1',
+      text: 'Hey! I just created our Cancún trip 🎉',
+      senderUid: aliceUid,
+      senderName: 'Alice Demo',
+    },
+    {
+      id: 'msg-2',
+      text: 'Looks amazing! Can\'t wait for the snorkelling.',
+      senderUid: bobUid,
+      senderName: 'Bob Demo',
+    },
+    {
+      id: 'msg-3',
+      text: 'I added the Chichen Itza day trip too — we should do that!',
+      senderUid: aliceUid,
+      senderName: 'Alice Demo',
+    },
+  ];
 
+  for (const msg of messages) {
+    await trip1Ref.collection('messages').doc(msg.id).set({
+      text: msg.text,
+      senderUid: msg.senderUid,
+      senderName: msg.senderName,
+      createdAt: now,
+    });
+  }
+
+  console.log('✅ Trip 1 (Cancún) seeded with activities, checklist, and messages');
+
+  // ── Trip 2 — Bali (alice + bob) ──────────────────────────────────────────
   const trip2Ref = db.collection('trips').doc('trip-bali-demo');
   await trip2Ref.set({
     tripId: 'trip-bali-demo',
@@ -205,10 +226,18 @@ async function seed() {
       [bobUid]: { displayName: 'Bob Demo', photoUrl: null },
     },
     createdBy: aliceUid,
+    inviteCode: 'BALI77',
     optimisedOrder: [],
     status: 'planning',
     createdAt: now,
     updatedAt: now,
+  });
+
+  await trip2Ref.collection('messages').doc('msg-bali-1').set({
+    text: 'Bob, I added you to the Bali trip! Code is BALI77.',
+    senderUid: aliceUid,
+    senderName: 'Alice Demo',
+    createdAt: now,
   });
 
   console.log('✅ Trip 2 (Bali) seeded');
@@ -216,6 +245,8 @@ async function seed() {
   console.log('🎉 Seed complete!');
   console.log('   alice@demo.com / demo1234');
   console.log('   bob@demo.com   / demo1234');
+  console.log('   Cancún invite code: CAN4X9');
+  console.log('   Bali invite code:   BALI77');
   console.log('   Open http://localhost:4000 to inspect the data.');
 }
 

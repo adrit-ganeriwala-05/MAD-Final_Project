@@ -1,4 +1,9 @@
+// lib/features/itinerary/data/activity_repository.dart
+
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:tropicaguide/core/utils/logger.dart';
 import 'package:tropicaguide/features/itinerary/data/activity_dto.dart';
 import 'package:tropicaguide/features/itinerary/domain/activity.dart';
@@ -75,12 +80,38 @@ class ActivityRepository {
     for (var i = 0; i < activities.length; i++) {
       batch.update(
         _activities(tripId).doc(activities[i].activityId),
-        {'position': i.toDouble(), 'updatedAt': FieldValue.serverTimestamp()},
+        {
+          'position': i.toDouble(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
       );
     }
     await batch.commit();
-    appLogger
-        .i('ActivityRepository: reordered ${activities.length} activities');
+    appLogger.i(
+      'ActivityRepository: reordered ${activities.length} activities',
+    );
+  }
+
+  /// Uploads [imageFile] for an activity and writes the URL to Firestore.
+  Future<String> uploadActivityImage({
+    required String tripId,
+    required String activityId,
+    required File imageFile,
+    required FirebaseStorage storage,
+  }) async {
+    final ref =
+        storage.ref('trips/$tripId/activities/$activityId/cover.jpg');
+    await ref.putFile(
+      imageFile,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+    final url = await ref.getDownloadURL();
+    await _activities(tripId).doc(activityId).update({
+      'imageStorageUrl': url,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    appLogger.i('ActivityRepository: uploaded image → $activityId');
+    return url;
   }
 
   /// Converts an [ActivityDto] to an [Activity] domain model.

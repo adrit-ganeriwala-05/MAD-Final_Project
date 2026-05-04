@@ -1,4 +1,9 @@
+// lib/core/config/app_config.dart
+
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Application environment.
 enum AppEnvironment {
@@ -36,3 +41,27 @@ abstract final class AppConfig {
   static String get emulatorHost =>
       Platform.isAndroid ? '10.0.2.2' : 'localhost';
 }
+
+/// Manages the app's [ThemeMode] — system, light, or dark.
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+
+  /// Cycles through system → light → dark → system.
+  void toggle() {
+    state = switch (state) {
+      ThemeMode.system => ThemeMode.light,
+      ThemeMode.light => ThemeMode.dark,
+      ThemeMode.dark => ThemeMode.system,
+    };
+  }
+
+  /// Updates the active [ThemeMode].
+  // ignore: avoid_setters_without_getters
+  set themeMode(ThemeMode mode) => state = mode;
+}
+
+/// Provider for the current [ThemeMode].
+final themeModeProvider =
+    NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
+    

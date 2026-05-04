@@ -16,6 +16,7 @@ class Trip {
     required this.createdAt,
     required this.updatedAt,
     this.coverImagePath,
+    this.inviteCode,
     this.startDate,
     this.endDate,
     this.memberProfiles = const {},
@@ -33,6 +34,9 @@ class Trip {
 
   /// Optional cover image asset path.
   final String? coverImagePath;
+
+  /// 6-character uppercase invite code for joining the trip.
+  final String? inviteCode;
 
   /// Trip start date.
   final DateTime? startDate;

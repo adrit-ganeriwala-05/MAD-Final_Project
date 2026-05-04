@@ -1,3 +1,5 @@
+// lib/core/config/router_config.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,14 +10,17 @@ import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
 import 'package:tropicaguide/features/auth/presentation/forgot_password_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_in_screen.dart';
 import 'package:tropicaguide/features/auth/presentation/sign_up_screen.dart';
+import 'package:tropicaguide/features/chat/presentation/chat_screen.dart';
 import 'package:tropicaguide/features/checklist/presentation/checklist_screen.dart';
 import 'package:tropicaguide/features/discovery/presentation/activity_discovery_screen.dart';
 import 'package:tropicaguide/features/itinerary/presentation/add_edit_activity_screen.dart';
 import 'package:tropicaguide/features/itinerary/presentation/itinerary_builder_screen.dart';
+import 'package:tropicaguide/features/profile/presentation/profile_screen.dart';
 import 'package:tropicaguide/features/trips/presentation/create_trip_screen.dart';
+import 'package:tropicaguide/features/trips/presentation/join_trip_screen.dart';
 import 'package:tropicaguide/features/trips/presentation/trip_dashboard_screen.dart';
 
-/// Named route paths.
+/// Named route paths used throughout the app.
 abstract final class AppRoutes {
   /// Sign-in screen.
   static const String signIn = '/sign-in';
@@ -35,6 +40,12 @@ abstract final class AppRoutes {
   /// Activity discovery screen.
   static const String discover = '/discover';
 
+  /// Join trip by invite code.
+  static const String joinTrip = '/join-trip';
+
+  /// User profile screen.
+  static const String profile = '/profile';
+
   /// Itinerary builder — parameterised by tripId.
   static String itinerary(String tripId) => '/trips/$tripId/itinerary';
 
@@ -43,6 +54,9 @@ abstract final class AppRoutes {
 
   /// Checklist screen — parameterised by tripId.
   static String checklist(String tripId) => '/trips/$tripId/checklist';
+
+  /// Trip chat screen — parameterised by tripId.
+  static String chat(String tripId) => '/trips/$tripId/chat';
 }
 
 /// A [ChangeNotifier] that wraps the auth state stream.
@@ -92,12 +106,25 @@ GoRouter buildRouter(Ref ref) {
         builder: (_, __) => const TripDashboardScreen(),
       ),
       GoRoute(
-        path: '/create-trip',
+        path: AppRoutes.createTrip,
         builder: (_, __) => const CreateTripScreen(),
       ),
       GoRoute(
-        path: '/discover',
+        path: AppRoutes.discover,
         builder: (_, __) => const ActivityDiscoveryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.joinTrip,
+        builder: (_, __) => const JoinTripScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (_, state) {
+          // uid is read from the provider in the screen itself, but we need
+          // the UID at build time. Retrieve it from the router ref.
+          final uid = ref.read(authStateChangesProvider).valueOrNull?.uid ?? '';
+          return ProfileScreen(uid: uid);
+        },
       ),
       GoRoute(
         path: '/trips/:tripId/itinerary',
@@ -114,6 +141,12 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/trips/:tripId/checklist',
         builder: (_, state) => ChecklistScreen(
+          tripId: state.pathParameters['tripId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/trips/:tripId/chat',
+        builder: (_, state) => ChatScreen(
           tripId: state.pathParameters['tripId']!,
         ),
       ),

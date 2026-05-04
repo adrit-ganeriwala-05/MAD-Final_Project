@@ -1,3 +1,6 @@
+// lib/features/trips/presentation/create_trip_screen.dart
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -9,6 +12,9 @@ import 'package:tropicaguide/core/ui/app_text_field.dart';
 import 'package:tropicaguide/features/trips/presentation/trips_notifier.dart';
 
 /// Screen for creating a new trip.
+///
+/// Fires a [ConfettiWidget] burst on successful creation before navigating
+/// to the new trip's itinerary builder.
 class CreateTripScreen extends ConsumerStatefulWidget {
   /// Creates a [CreateTripScreen].
   const CreateTripScreen({super.key});
@@ -22,6 +28,9 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
   final _titleController = TextEditingController();
   final _destinationController = TextEditingController();
   final _budgetController = TextEditingController();
+  final _confetti = ConfettiController(
+    duration: const Duration(seconds: 2),
+  );
   DateTime? _startDate;
   DateTime? _endDate;
 
@@ -30,6 +39,7 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
     _titleController.dispose();
     _destinationController.dispose();
     _budgetController.dispose();
+    _confetti.dispose();
     super.dispose();
   }
 
@@ -65,7 +75,9 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
               endDate: _endDate,
             );
     if (tripId != null && mounted) {
-      context.pushReplacement(AppRoutes.itinerary(tripId));
+      _confetti.play();
+      await Future<void>.delayed(const Duration(seconds: 2));
+      if (mounted) context.pushReplacement(AppRoutes.itinerary(tripId));
     }
   }
 
@@ -89,82 +101,98 @@ class _CreateTripScreenState extends ConsumerState<CreateTripScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('New Trip')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Plan your adventure', style: textTheme.headlineSmall),
-                const Gap(AppSpacing.xl),
-                AppTextField(
-                  controller: _titleController,
-                  label: 'Trip Name',
-                  hint: 'e.g. Cancún Spring Break',
-                  textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                const Gap(AppSpacing.md),
-                AppTextField(
-                  controller: _destinationController,
-                  label: 'Destination',
-                  hint: 'e.g. Cancún, Mexico',
-                  textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                const Gap(AppSpacing.md),
-                AppTextField(
-                  controller: _budgetController,
-                  label: 'Total Budget (USD)',
-                  hint: '0',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.done,
-                  validator: (v) {
-                    if (v != null &&
-                        v.isNotEmpty &&
-                        double.tryParse(v) == null) {
-                      return 'Enter a valid number';
-                    }
-                    return null;
-                  },
-                ),
-                const Gap(AppSpacing.lg),
-                // Date pickers
-                Row(
+      body: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: _DatePickerButton(
-                        label: 'Start Date',
-                        date: _startDate,
-                        onTap: () => _pickDate(isStart: true),
-                      ),
+                    Text(
+                      'Plan your adventure',
+                      style: textTheme.headlineSmall,
+                    ),
+                    const Gap(AppSpacing.xl),
+                    AppTextField(
+                      controller: _titleController,
+                      label: 'Trip Name',
+                      hint: 'e.g. Cancún Spring Break',
+                      textInputAction: TextInputAction.next,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Required' : null,
                     ),
                     const Gap(AppSpacing.md),
-                    Expanded(
-                      child: _DatePickerButton(
-                        label: 'End Date',
-                        date: _endDate,
-                        onTap: () => _pickDate(isStart: false),
-                      ),
+                    AppTextField(
+                      controller: _destinationController,
+                      label: 'Destination',
+                      hint: 'e.g. Cancún, Mexico',
+                      textInputAction: TextInputAction.next,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    ),
+                    const Gap(AppSpacing.md),
+                    AppTextField(
+                      controller: _budgetController,
+                      label: 'Total Budget (USD)',
+                      hint: '0',
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      validator: (v) {
+                        if (v != null &&
+                            v.isNotEmpty &&
+                            double.tryParse(v) == null) {
+                          return 'Enter a valid number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const Gap(AppSpacing.lg),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _DatePickerButton(
+                            label: 'Start Date',
+                            date: _startDate,
+                            onTap: () => _pickDate(isStart: true),
+                          ),
+                        ),
+                        const Gap(AppSpacing.md),
+                        Expanded(
+                          child: _DatePickerButton(
+                            label: 'End Date',
+                            date: _endDate,
+                            onTap: () => _pickDate(isStart: false),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(AppSpacing.xl),
+                    AppButton(
+                      label: 'Create Trip',
+                      onPressed: _submit,
+                      isLoading: isLoading,
+                      icon: Icons.flight_takeoff_rounded,
                     ),
                   ],
                 ),
-                const Gap(AppSpacing.xl),
-                AppButton(
-                  label: 'Create Trip',
-                  onPressed: _submit,
-                  isLoading: isLoading,
-                  icon: Icons.flight_takeoff_rounded,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          // Confetti overlay fires after successful creation.
+          ConfettiWidget(
+            confettiController: _confetti,
+            blastDirectionality: BlastDirectionality.explosive,
+            colors: [
+              colorScheme.primary,
+              colorScheme.secondary,
+              colorScheme.tertiary,
+            ],
+          ),
+        ],
       ),
     );
   }

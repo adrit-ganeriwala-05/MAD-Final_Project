@@ -1,17 +1,26 @@
+// lib/features/auth/presentation/sign_up_screen.dart
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:gap/gap.dart';
+
 import 'package:go_router/go_router.dart';
+
 import 'package:tropicaguide/core/constants/spacing.dart';
+
 import 'package:tropicaguide/core/constants/strings.dart';
+
 import 'package:tropicaguide/core/ui/app_button.dart';
+
 import 'package:tropicaguide/core/ui/app_text_field.dart';
+
 import 'package:tropicaguide/features/auth/presentation/auth_notifier.dart';
 
-/// Sign-up screen.
-///
-/// Collects display name, email, and password.
-/// Password confirmation is validated client-side only.
+import 'package:tropicaguide/features/auth/presentation/google_button.dart';
+
+/// Sign-up screen with Google and email/password.
 class SignUpScreen extends ConsumerStatefulWidget {
   /// Creates a [SignUpScreen].
   const SignUpScreen({super.key});
@@ -22,30 +31,47 @@ class SignUpScreen extends ConsumerStatefulWidget {
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _nameController = TextEditingController();
+
   final _emailController = TextEditingController();
+
   final _passwordController = TextEditingController();
+
   final _confirmController = TextEditingController();
+
   final _nameFocus = FocusNode();
+
   final _emailFocus = FocusNode();
+
   final _passwordFocus = FocusNode();
+
   final _confirmFocus = FocusNode();
 
   @override
   void dispose() {
     _nameController.dispose();
+
     _emailController.dispose();
+
     _passwordController.dispose();
+
     _confirmController.dispose();
+
     _nameFocus.dispose();
+
     _emailFocus.dispose();
+
     _passwordFocus.dispose();
+
     _confirmFocus.dispose();
+
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+
     await ref.read(authNotifierProvider.notifier).signUp(
           email: _emailController.text,
           password: _passwordController.text,
@@ -53,11 +79,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         );
   }
 
+  Future<void> _googleSignUp() async {
+    await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
+
     final textTheme = Theme.of(context).textTheme;
+
     final colorScheme = Theme.of(context).colorScheme;
+
     final isLoading = authState is AuthLoading;
 
     ref.listen(authNotifierProvider, (_, next) {
@@ -85,10 +118,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Gap(AppSpacing.lg),
-                Text(
-                  'Join TropicaGuide',
-                  style: textTheme.headlineMedium,
-                ),
+                Text('Join TropicaGuide', style: textTheme.headlineMedium),
                 const Gap(AppSpacing.sm),
                 Text(
                   'Create an account to start planning.',
@@ -96,7 +126,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const Gap(AppSpacing.xxl),
+                const Gap(AppSpacing.xl),
+                GoogleButton(
+                  label: 'Sign up with Google',
+                  onPressed: isLoading ? null : _googleSignUp,
+                ),
+                const Gap(AppSpacing.lg),
+                const OrDivider(),
+                const Gap(AppSpacing.lg),
                 AppTextField(
                   controller: _nameController,
                   label: 'Display Name',
@@ -108,6 +145,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Name is required.';
                     }
+
                     return null;
                   },
                 ),
@@ -124,9 +162,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Email is required.';
                     }
+
                     if (!value.trim().contains('@')) {
                       return 'Enter a valid email.';
                     }
+
                     return null;
                   },
                 ),
@@ -143,9 +183,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Password is required.';
                     }
+
                     if (value.length < 6) {
                       return 'Password must be at least 6 characters.';
                     }
+
                     return null;
                   },
                 ),
@@ -161,6 +203,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     if (value != _passwordController.text) {
                       return 'Passwords do not match.';
                     }
+
                     return null;
                   },
                 ),

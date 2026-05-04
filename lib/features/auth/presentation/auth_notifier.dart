@@ -1,3 +1,5 @@
+// lib/features/auth/presentation/auth_notifier.dart
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tropicaguide/features/auth/data/auth_repository.dart';
 import 'package:tropicaguide/features/auth/data/auth_repository_provider.dart';
@@ -57,6 +59,17 @@ class AuthNotifier extends _$AuthNotifier {
     };
   }
 
+  /// Signs in with Google.
+  Future<void> signInWithGoogle() async {
+    state = const AuthLoading();
+    final result =
+        await ref.read(authRepositoryProvider).signInWithGoogle();
+    state = switch (result) {
+      AuthSuccess() => const AuthDone(),
+      AuthFailure(:final message) => AuthError(message),
+    };
+  }
+
   /// Creates a new account.
   Future<void> signUp({
     required String email,
@@ -78,8 +91,9 @@ class AuthNotifier extends _$AuthNotifier {
   /// Sends a password reset email.
   Future<void> sendPasswordReset({required String email}) async {
     state = const AuthLoading();
-    final result =
-        await ref.read(authRepositoryProvider).sendPasswordReset(email: email);
+    final result = await ref
+        .read(authRepositoryProvider)
+        .sendPasswordReset(email: email);
     state = switch (result) {
       AuthSuccess() => const AuthDone(),
       AuthFailure(:final message) => AuthError(message),
@@ -92,6 +106,6 @@ class AuthNotifier extends _$AuthNotifier {
     state = const AuthIdle();
   }
 
-  /// Resets to idle — call when navigating away from an error screen.
+  /// Resets to idle.
   void reset() => state = const AuthIdle();
 }

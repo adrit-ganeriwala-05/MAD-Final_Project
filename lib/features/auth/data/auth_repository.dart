@@ -1,4 +1,7 @@
+// lib/features/auth/data/auth_repository.dart
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tropicaguide/core/utils/logger.dart';
 import 'package:tropicaguide/features/auth/domain/app_user.dart';
 
@@ -26,9 +29,6 @@ final class AuthFailure extends AuthResult {
 }
 
 /// Wraps [FirebaseAuth] and exposes a clean API for auth operations.
-///
-/// All methods return [AuthResult] — callers never catch raw Firebase
-/// exceptions. Error messages are mapped to user-friendly strings here.
 class AuthRepository {
   /// Creates an [AuthRepository].
   const AuthRepository(this._auth);
@@ -62,6 +62,31 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       appLogger.w('Auth: sign-in failed → ${e.code}');
       return AuthFailure(_mapError(e.code));
+    }
+  }
+
+  /// Signs in with Google.
+  Future<AuthResult> signInWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return const AuthFailure('Google sign-in was cancelled.');
+      }
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final userCredential = await _auth.signInWithCredential(credential);
+      final user = AppUser.fromFirebase(userCredential.user!);
+      appLogger.i('Auth: signed in with Google → ${user.uid}');
+      return AuthSuccess(user);
+    } on FirebaseAuthException catch (e) {
+      appLogger.w('Auth: Google sign-in failed → ${e.code}');
+      return AuthFailure(_mapError(e.code));
+    } on Exception catch (e) {
+      appLogger.w('Auth: Google sign-in error → $e');
+      return const AuthFailure('Google sign-in failed. Please try again.');
     }
   }
 
@@ -99,8 +124,9 @@ class AuthRepository {
     }
   }
 
-  /// Signs out the current user.
+  /// Signs out the current user from Firebase and Google.
   Future<void> signOut() async {
+    await GoogleSignIn().signOut();
     await _auth.signOut();
     appLogger.i('Auth: signed out');
   }

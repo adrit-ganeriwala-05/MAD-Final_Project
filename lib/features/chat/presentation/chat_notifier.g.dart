@@ -1,33 +1,31 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'itinerary_notifier.dart';
+part of 'chat_notifier.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$activityRepositoryHash() =>
-    r'50cfc4278867460d8feca18cc1ed9bf8d2416791';
+String _$chatRepositoryHash() => r'91bf3bc9d3b382427c8a11749047886a65a15f8c';
 
-/// Provides the [ActivityRepository] singleton.
+/// Provides the [ChatRepository] singleton.
 ///
-/// Copied from [activityRepository].
-@ProviderFor(activityRepository)
-final activityRepositoryProvider =
-    AutoDisposeProvider<ActivityRepository>.internal(
-  activityRepository,
-  name: r'activityRepositoryProvider',
+/// Copied from [chatRepository].
+@ProviderFor(chatRepository)
+final chatRepositoryProvider = AutoDisposeProvider<ChatRepository>.internal(
+  chatRepository,
+  name: r'chatRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$activityRepositoryHash,
+      : _$chatRepositoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ActivityRepositoryRef = AutoDisposeProviderRef<ActivityRepository>;
-String _$activitiesStreamHash() => r'e2c6264ace08ef08f04dd48123e3997b87656671';
+typedef ChatRepositoryRef = AutoDisposeProviderRef<ChatRepository>;
+String _$messagesStreamHash() => r'7a50e242f267a88049edd1e410c3d53e215dcbf3';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -50,35 +48,35 @@ class _SystemHash {
   }
 }
 
-/// Real-time stream of activities for a given trip.
+/// Real-time stream of messages for [tripId], ordered oldest-first.
 ///
-/// Copied from [activitiesStream].
-@ProviderFor(activitiesStream)
-const activitiesStreamProvider = ActivitiesStreamFamily();
+/// Copied from [messagesStream].
+@ProviderFor(messagesStream)
+const messagesStreamProvider = MessagesStreamFamily();
 
-/// Real-time stream of activities for a given trip.
+/// Real-time stream of messages for [tripId], ordered oldest-first.
 ///
-/// Copied from [activitiesStream].
-class ActivitiesStreamFamily extends Family<AsyncValue<List<Activity>>> {
-  /// Real-time stream of activities for a given trip.
+/// Copied from [messagesStream].
+class MessagesStreamFamily extends Family<AsyncValue<List<Message>>> {
+  /// Real-time stream of messages for [tripId], ordered oldest-first.
   ///
-  /// Copied from [activitiesStream].
-  const ActivitiesStreamFamily();
+  /// Copied from [messagesStream].
+  const MessagesStreamFamily();
 
-  /// Real-time stream of activities for a given trip.
+  /// Real-time stream of messages for [tripId], ordered oldest-first.
   ///
-  /// Copied from [activitiesStream].
-  ActivitiesStreamProvider call(
+  /// Copied from [messagesStream].
+  MessagesStreamProvider call(
     String tripId,
   ) {
-    return ActivitiesStreamProvider(
+    return MessagesStreamProvider(
       tripId,
     );
   }
 
   @override
-  ActivitiesStreamProvider getProviderOverride(
-    covariant ActivitiesStreamProvider provider,
+  MessagesStreamProvider getProviderOverride(
+    covariant MessagesStreamProvider provider,
   ) {
     return call(
       provider.tripId,
@@ -97,37 +95,36 @@ class ActivitiesStreamFamily extends Family<AsyncValue<List<Activity>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'activitiesStreamProvider';
+  String? get name => r'messagesStreamProvider';
 }
 
-/// Real-time stream of activities for a given trip.
+/// Real-time stream of messages for [tripId], ordered oldest-first.
 ///
-/// Copied from [activitiesStream].
-class ActivitiesStreamProvider
-    extends AutoDisposeStreamProvider<List<Activity>> {
-  /// Real-time stream of activities for a given trip.
+/// Copied from [messagesStream].
+class MessagesStreamProvider extends AutoDisposeStreamProvider<List<Message>> {
+  /// Real-time stream of messages for [tripId], ordered oldest-first.
   ///
-  /// Copied from [activitiesStream].
-  ActivitiesStreamProvider(
+  /// Copied from [messagesStream].
+  MessagesStreamProvider(
     String tripId,
   ) : this._internal(
-          (ref) => activitiesStream(
-            ref as ActivitiesStreamRef,
+          (ref) => messagesStream(
+            ref as MessagesStreamRef,
             tripId,
           ),
-          from: activitiesStreamProvider,
-          name: r'activitiesStreamProvider',
+          from: messagesStreamProvider,
+          name: r'messagesStreamProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$activitiesStreamHash,
-          dependencies: ActivitiesStreamFamily._dependencies,
+                  : _$messagesStreamHash,
+          dependencies: MessagesStreamFamily._dependencies,
           allTransitiveDependencies:
-              ActivitiesStreamFamily._allTransitiveDependencies,
+              MessagesStreamFamily._allTransitiveDependencies,
           tripId: tripId,
         );
 
-  ActivitiesStreamProvider._internal(
+  MessagesStreamProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -141,12 +138,12 @@ class ActivitiesStreamProvider
 
   @override
   Override overrideWith(
-    Stream<List<Activity>> Function(ActivitiesStreamRef provider) create,
+    Stream<List<Message>> Function(MessagesStreamRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: ActivitiesStreamProvider._internal(
-        (ref) => create(ref as ActivitiesStreamRef),
+      override: MessagesStreamProvider._internal(
+        (ref) => create(ref as MessagesStreamRef),
         from: from,
         name: null,
         dependencies: null,
@@ -158,13 +155,13 @@ class ActivitiesStreamProvider
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<Activity>> createElement() {
-    return _ActivitiesStreamProviderElement(this);
+  AutoDisposeStreamProviderElement<List<Message>> createElement() {
+    return _MessagesStreamProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ActivitiesStreamProvider && other.tripId == tripId;
+    return other is MessagesStreamProvider && other.tripId == tripId;
   }
 
   @override
@@ -178,23 +175,23 @@ class ActivitiesStreamProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ActivitiesStreamRef on AutoDisposeStreamProviderRef<List<Activity>> {
+mixin MessagesStreamRef on AutoDisposeStreamProviderRef<List<Message>> {
   /// The parameter `tripId` of this provider.
   String get tripId;
 }
 
-class _ActivitiesStreamProviderElement
-    extends AutoDisposeStreamProviderElement<List<Activity>>
-    with ActivitiesStreamRef {
-  _ActivitiesStreamProviderElement(super.provider);
+class _MessagesStreamProviderElement
+    extends AutoDisposeStreamProviderElement<List<Message>>
+    with MessagesStreamRef {
+  _MessagesStreamProviderElement(super.provider);
 
   @override
-  String get tripId => (origin as ActivitiesStreamProvider).tripId;
+  String get tripId => (origin as MessagesStreamProvider).tripId;
 }
 
-String _$itineraryNotifierHash() => r'b93487e77e75143153c41d9c02ae7a5c952b4079';
+String _$chatNotifierHash() => r'01cd8ef0652c9585fe7489984f76dc7f6e3db65b';
 
-abstract class _$ItineraryNotifier
+abstract class _$ChatNotifier
     extends BuildlessAutoDisposeNotifier<AsyncValue<void>> {
   late final String tripId;
 
@@ -203,35 +200,35 @@ abstract class _$ItineraryNotifier
   );
 }
 
-/// Notifier for itinerary builder operations.
+/// Notifier for sending chat messages.
 ///
-/// Copied from [ItineraryNotifier].
-@ProviderFor(ItineraryNotifier)
-const itineraryNotifierProvider = ItineraryNotifierFamily();
+/// Copied from [ChatNotifier].
+@ProviderFor(ChatNotifier)
+const chatNotifierProvider = ChatNotifierFamily();
 
-/// Notifier for itinerary builder operations.
+/// Notifier for sending chat messages.
 ///
-/// Copied from [ItineraryNotifier].
-class ItineraryNotifierFamily extends Family<AsyncValue<void>> {
-  /// Notifier for itinerary builder operations.
+/// Copied from [ChatNotifier].
+class ChatNotifierFamily extends Family<AsyncValue<void>> {
+  /// Notifier for sending chat messages.
   ///
-  /// Copied from [ItineraryNotifier].
-  const ItineraryNotifierFamily();
+  /// Copied from [ChatNotifier].
+  const ChatNotifierFamily();
 
-  /// Notifier for itinerary builder operations.
+  /// Notifier for sending chat messages.
   ///
-  /// Copied from [ItineraryNotifier].
-  ItineraryNotifierProvider call(
+  /// Copied from [ChatNotifier].
+  ChatNotifierProvider call(
     String tripId,
   ) {
-    return ItineraryNotifierProvider(
+    return ChatNotifierProvider(
       tripId,
     );
   }
 
   @override
-  ItineraryNotifierProvider getProviderOverride(
-    covariant ItineraryNotifierProvider provider,
+  ChatNotifierProvider getProviderOverride(
+    covariant ChatNotifierProvider provider,
   ) {
     return call(
       provider.tripId,
@@ -250,34 +247,34 @@ class ItineraryNotifierFamily extends Family<AsyncValue<void>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'itineraryNotifierProvider';
+  String? get name => r'chatNotifierProvider';
 }
 
-/// Notifier for itinerary builder operations.
+/// Notifier for sending chat messages.
 ///
-/// Copied from [ItineraryNotifier].
-class ItineraryNotifierProvider extends AutoDisposeNotifierProviderImpl<
-    ItineraryNotifier, AsyncValue<void>> {
-  /// Notifier for itinerary builder operations.
+/// Copied from [ChatNotifier].
+class ChatNotifierProvider
+    extends AutoDisposeNotifierProviderImpl<ChatNotifier, AsyncValue<void>> {
+  /// Notifier for sending chat messages.
   ///
-  /// Copied from [ItineraryNotifier].
-  ItineraryNotifierProvider(
+  /// Copied from [ChatNotifier].
+  ChatNotifierProvider(
     String tripId,
   ) : this._internal(
-          () => ItineraryNotifier()..tripId = tripId,
-          from: itineraryNotifierProvider,
-          name: r'itineraryNotifierProvider',
+          () => ChatNotifier()..tripId = tripId,
+          from: chatNotifierProvider,
+          name: r'chatNotifierProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$itineraryNotifierHash,
-          dependencies: ItineraryNotifierFamily._dependencies,
+                  : _$chatNotifierHash,
+          dependencies: ChatNotifierFamily._dependencies,
           allTransitiveDependencies:
-              ItineraryNotifierFamily._allTransitiveDependencies,
+              ChatNotifierFamily._allTransitiveDependencies,
           tripId: tripId,
         );
 
-  ItineraryNotifierProvider._internal(
+  ChatNotifierProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -291,7 +288,7 @@ class ItineraryNotifierProvider extends AutoDisposeNotifierProviderImpl<
 
   @override
   AsyncValue<void> runNotifierBuild(
-    covariant ItineraryNotifier notifier,
+    covariant ChatNotifier notifier,
   ) {
     return notifier.build(
       tripId,
@@ -299,10 +296,10 @@ class ItineraryNotifierProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  Override overrideWith(ItineraryNotifier Function() create) {
+  Override overrideWith(ChatNotifier Function() create) {
     return ProviderOverride(
       origin: this,
-      override: ItineraryNotifierProvider._internal(
+      override: ChatNotifierProvider._internal(
         () => create()..tripId = tripId,
         from: from,
         name: null,
@@ -315,14 +312,14 @@ class ItineraryNotifierProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<ItineraryNotifier, AsyncValue<void>>
+  AutoDisposeNotifierProviderElement<ChatNotifier, AsyncValue<void>>
       createElement() {
-    return _ItineraryNotifierProviderElement(this);
+    return _ChatNotifierProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ItineraryNotifierProvider && other.tripId == tripId;
+    return other is ChatNotifierProvider && other.tripId == tripId;
   }
 
   @override
@@ -336,18 +333,18 @@ class ItineraryNotifierProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ItineraryNotifierRef on AutoDisposeNotifierProviderRef<AsyncValue<void>> {
+mixin ChatNotifierRef on AutoDisposeNotifierProviderRef<AsyncValue<void>> {
   /// The parameter `tripId` of this provider.
   String get tripId;
 }
 
-class _ItineraryNotifierProviderElement
-    extends AutoDisposeNotifierProviderElement<ItineraryNotifier,
-        AsyncValue<void>> with ItineraryNotifierRef {
-  _ItineraryNotifierProviderElement(super.provider);
+class _ChatNotifierProviderElement
+    extends AutoDisposeNotifierProviderElement<ChatNotifier, AsyncValue<void>>
+    with ChatNotifierRef {
+  _ChatNotifierProviderElement(super.provider);
 
   @override
-  String get tripId => (origin as ItineraryNotifierProvider).tripId;
+  String get tripId => (origin as ChatNotifierProvider).tripId;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

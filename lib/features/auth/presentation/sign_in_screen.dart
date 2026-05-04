@@ -1,3 +1,6 @@
+
+// lib/features/auth/presentation/sign_in_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -8,11 +11,8 @@ import 'package:tropicaguide/core/constants/strings.dart';
 import 'package:tropicaguide/core/ui/app_button.dart';
 import 'package:tropicaguide/core/ui/app_text_field.dart';
 import 'package:tropicaguide/features/auth/presentation/auth_notifier.dart';
-
-/// Sign-in screen.
-///
-/// Validates email + password locally before hitting Firebase.
-/// Inline errors appear on blur via [AutovalidateMode.onUserInteraction].
+import 'package:tropicaguide/features/auth/presentation/google_button.dart';
+/// Sign-in screen with email/password and Google Sign-In.
 class SignInScreen extends ConsumerStatefulWidget {
   /// Creates a [SignInScreen].
   const SignInScreen({super.key});
@@ -27,8 +27,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _passwordController = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
-
   @override
+
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -44,14 +44,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           password: _passwordController.text,
         );
   }
-
+  Future<void> _googleSignIn() async {
+    await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+  }
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final isLoading = authState is AuthLoading;
-
     ref.listen(authNotifierProvider, (_, next) {
       if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -62,7 +63,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         );
       }
     });
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -87,6 +87,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const Gap(AppSpacing.xxxl),
+                GoogleButton(
+                  label: 'Continue with Google',
+                  onPressed: isLoading ? null : _googleSignIn,
+                ),
+                const Gap(AppSpacing.lg),
+                const OrDivider(),
+                const Gap(AppSpacing.lg),
                 AppTextField(
                   controller: _emailController,
                   label: AppStrings.email,
@@ -152,7 +159,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
           ),
         ),
+
       ),
+
     );
+
   }
+
 }
+
+

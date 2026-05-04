@@ -18,6 +18,7 @@ class TripDto {
     required this.createdAt,
     required this.updatedAt,
     this.coverImagePath,
+    this.inviteCode,
     this.startDate,
     this.endDate,
     this.memberProfiles = const {},
@@ -32,6 +33,7 @@ class TripDto {
       title: data['title'] as String? ?? '',
       destination: data['destination'] as String? ?? '',
       coverImagePath: data['coverImagePath'] as String?,
+      inviteCode: data['inviteCode'] as String?,
       startDate: data['startDate'] as Timestamp?,
       endDate: data['endDate'] as Timestamp?,
       totalBudget: (data['totalBudget'] as num?)?.toInt() ?? 0,
@@ -56,6 +58,7 @@ class TripDto {
         'title': title,
         'destination': destination,
         'coverImagePath': coverImagePath,
+        'inviteCode': inviteCode,
         'startDate': startDate,
         'endDate': endDate,
         'totalBudget': totalBudget,
@@ -80,6 +83,9 @@ class TripDto {
 
   /// Optional cover image asset path.
   final String? coverImagePath;
+
+  /// 6-character uppercase invite code.
+  final String? inviteCode;
 
   /// Trip start date.
   final Timestamp? startDate;
