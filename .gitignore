@@ -54,4 +54,43 @@ android/app/google-services.json
 # Cloud Functions build artifacts and dependencies
 functions/node_modules/
 functions/lib/
+functions/*.js
+functions/*.js.map
+functions/tsconfig.tsbuildinfo
 lib/firebase_options.dart
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.p8
+*.p12
+*.keystore
+key.properties
+
+# iOS
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/Runner.xcworkspace/xcuserdata/
+*.ipa
+
+# macOS
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/flutter_export_environment.sh
+
+# Web
+web/firebase-messaging-sw.js
+
+# Firebase emulator
+.firebase/
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+
+# Flutter generated files
+**/*.freezed.dart
+**/*.g.dart
+**/*.gr.dart
+
+# Setup scripts
+setup_tree.sh
