@@ -18,8 +18,7 @@ import 'package:tropicaguide/features/trips/presentation/trips_notifier.dart';
 /// The drag-and-drop itinerary builder screen.
 ///
 /// Features a Hero SliverAppBar cover image, real-time activity list,
-/// drag-and-drop reorder, explainable score chips, invite code sharing,
-/// Cloud Function optimiser trigger, and trip chat navigation.
+/// drag-and-drop reorder, invite code sharing, and trip chat navigation.
 class ItineraryBuilderScreen extends ConsumerWidget {
   /// Creates an [ItineraryBuilderScreen].
   const ItineraryBuilderScreen({required this.tripId, super.key});
@@ -84,16 +83,27 @@ class ItineraryBuilderScreen extends ConsumerWidget {
         ],
         body: activitiesAsync.when(
           loading: () => const LoadingState(),
-          error: (e, __) => ErrorState(
-            message: e.toString(),
-            onRetry: () => ref.invalidate(activitiesStreamProvider(tripId)),
-          ),
+          error: (e, __) {
+            if (e.toString().contains('permission-denied')) {
+              // Show loader and auto-retry — auth token race condition on first load
+              Future.delayed(const Duration(seconds: 2), () {
+                ref.invalidate(activitiesStreamProvider(tripId));
+              });
+              return const LoadingState();
+            }
+            return ErrorState(
+              message: e.toString(),
+              onRetry: () =>
+                  ref.invalidate(activitiesStreamProvider(tripId)),
+            );
+          },
           data: (activities) => activities.isEmpty
               ? EmptyState(
                   title: 'No activities yet',
                   subtitle: 'Tap + to add your first activity.',
                   ctaLabel: 'Add Activity',
-                  onCtaTap: () => context.push(AppRoutes.addActivity(tripId)),
+                  onCtaTap: () =>
+                      context.push(AppRoutes.addActivity(tripId)),
                 )
               : _ActivityList(tripId: tripId, activities: activities),
         ),
@@ -204,7 +214,8 @@ class _ActivityListState extends ConsumerState<_ActivityList> {
             itemCount: _activities.length,
             onReorder: (oldIndex, newIndex) {
               setState(() {
-                final adjusted = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                final adjusted =
+                    newIndex > oldIndex ? newIndex - 1 : newIndex;
                 final item = _activities.removeAt(oldIndex);
                 _activities.insert(adjusted, item);
               });
@@ -236,10 +247,3 @@ class _ActivityListState extends ConsumerState<_ActivityList> {
     );
   }
 }
-
-// ── Score legend banner ───────────────────────────────────────────────────────
-
-
-
-
-

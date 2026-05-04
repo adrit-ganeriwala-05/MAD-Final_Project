@@ -59,9 +59,9 @@ class CreateTripNotifier extends _$CreateTripNotifier {
             startDate: startDate,
             endDate: endDate,
           );
-      // Subscribe to FCM topic for this trip
-      await ref.read(fcmServiceProvider).subscribeToTrip(id);
       state = const AsyncData(null);
+      // Subscribe to FCM topic in background — don't block navigation
+      ref.read(fcmServiceProvider).subscribeToTrip(id).ignore();
       return id;
     } on Exception catch (e, st) {
       state = AsyncError(e, st);
@@ -99,9 +99,9 @@ class JoinTripNotifier extends _$JoinTripNotifier {
         );
         return null;
       }
-      // Subscribe to FCM topic for this trip
-      await ref.read(fcmServiceProvider).subscribeToTrip(tripId);
       state = const AsyncData(null);
+      // Subscribe to FCM topic in background — don't block navigation
+      ref.read(fcmServiceProvider).subscribeToTrip(tripId).ignore();
       return tripId;
     } on Exception catch (e, st) {
       state = AsyncError(e, st);

@@ -1,3 +1,5 @@
+// lib/core/ui/app_card.dart
+
 import 'package:flutter/material.dart';
 import 'package:tropicaguide/core/constants/spacing.dart';
 
@@ -19,6 +21,7 @@ class AppCard extends StatelessWidget {
     required this.child,
     super.key,
     this.onTap,
+    this.onLongPress,
     this.padding,
     this.semanticLabel,
   });
@@ -28,6 +31,9 @@ class AppCard extends StatelessWidget {
 
   /// Optional tap callback. When provided, the card becomes tappable.
   final VoidCallback? onTap;
+
+  /// Optional long-press callback.
+  final VoidCallback? onLongPress;
 
   /// Inner padding. Defaults to [AppSpacing.lg] on all sides.
   final EdgeInsetsGeometry? padding;
@@ -43,6 +49,7 @@ class AppCard extends StatelessWidget {
       child: Card(
         child: InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(AppSpacing.lg),
           child: Padding(
             padding: padding ?? const EdgeInsets.all(AppSpacing.lg),

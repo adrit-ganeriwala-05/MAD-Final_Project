@@ -147,6 +147,12 @@ class TripRepository {
     return url;
   }
 
+  /// Deletes a trip document from Firestore.
+  Future<void> deleteTrip(String tripId) async {
+    await _trips.doc(tripId).delete();
+    appLogger.i('TripRepository: deleted trip → $tripId');
+  }
+
   /// Converts a [TripDto] to a [Trip] domain model.
   Trip _toDomain(TripDto dto) => Trip(
         tripId: dto.tripId,

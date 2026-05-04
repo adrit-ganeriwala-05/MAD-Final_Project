@@ -111,19 +111,17 @@ export const onActivityAdded = onDocumentCreated(
       // ignore
     }
 
-    await admin.messaging().sendToTopic(
-      `trip_${tripId}`,
-      {
-        notification: {
-          title: '✈️ New Activity Added',
-          body: `${creatorName} added "${title}" to the itinerary`,
-        },
-        data: {
-          tripId,
-          type: 'activity_added',
-        },
+    await admin.messaging().send({
+      topic: `trip_${tripId}`,
+      notification: {
+        title: '✈️ New Activity Added',
+        body: `${creatorName} added "${title}" to the itinerary`,
       },
-    );
+      data: {
+        tripId,
+        type: 'activity_added',
+      },
+    });
 
     console.log(`FCM: sent activity notification for trip ${tripId}`);
   },
@@ -145,19 +143,17 @@ export const onMessageSent = onDocumentCreated(
     const text = (data['text'] as string) ?? '';
     const preview = text.length > 50 ? `${text.substring(0, 50)}…` : text;
 
-    await admin.messaging().sendToTopic(
-      `trip_${tripId}`,
-      {
-        notification: {
-          title: `💬 ${senderName}`,
-          body: preview,
-        },
-        data: {
-          tripId,
-          type: 'message_sent',
-        },
+    await admin.messaging().send({
+      topic: `trip_${tripId}`,
+      notification: {
+        title: `💬 ${senderName}`,
+        body: preview,
       },
-    );
+      data: {
+        tripId,
+        type: 'message_sent',
+      },
+    });
 
     console.log(`FCM: sent chat notification for trip ${tripId}`);
   },

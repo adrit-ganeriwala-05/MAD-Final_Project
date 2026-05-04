@@ -44,14 +44,13 @@ class TripDashboardScreen extends ConsumerWidget {
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         actions: [
-          // ── Theme toggle ───────────────────────────────────────────────
           IconButton(
             tooltip: 'Toggle theme',
             icon: Icon(switch (themeMode) {
               ThemeMode.light => Icons.light_mode_outlined,
               ThemeMode.dark => Icons.dark_mode_outlined,
               ThemeMode.system => Icons.brightness_auto_outlined,
-            }, ) ,
+            }),
             onPressed: () =>
                 ref.read(themeModeProvider.notifier).toggle(),
           ),
@@ -80,10 +79,18 @@ class TripDashboardScreen extends ConsumerWidget {
       ),
       body: tripsAsync.when(
         loading: () => const LoadingState(),
-        error: (e, __) => ErrorState(
-          message: e.toString(),
-          onRetry: () => ref.invalidate(tripsStreamProvider),
-        ),
+        error: (e, __) {
+          if (e.toString().contains('permission-denied')) {
+            Future.delayed(const Duration(seconds: 2), () {
+              ref.invalidate(tripsStreamProvider);
+            });
+            return const LoadingState();
+          }
+          return ErrorState(
+            message: e.toString(),
+            onRetry: () => ref.invalidate(tripsStreamProvider),
+          );
+        },
         data: (trips) => trips.isEmpty
             ? EmptyState(
                 title: AppStrings.noTripsYet,
@@ -138,6 +145,41 @@ class _TripCard extends ConsumerWidget {
     }
   }
 
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete trip?'),
+        content: Text(
+          'Delete "${trip.title}"? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: Theme.of(ctx).colorScheme.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) {
+      await ref.read(tripRepositoryProvider).deleteTrip(trip.tripId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('"${trip.title}" deleted.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
@@ -152,6 +194,7 @@ class _TripCard extends ConsumerWidget {
       semanticLabel: 'Trip: ${trip.title}',
       padding: EdgeInsets.zero,
       onTap: () => context.push(AppRoutes.itinerary(trip.tripId)),
+      onLongPress: () => _confirmDelete(context, ref),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
