@@ -1,4 +1,3 @@
-
 // lib/features/auth/presentation/sign_in_screen.dart
 
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:tropicaguide/core/ui/app_button.dart';
 import 'package:tropicaguide/core/ui/app_text_field.dart';
 import 'package:tropicaguide/features/auth/presentation/auth_notifier.dart';
 import 'package:tropicaguide/features/auth/presentation/google_button.dart';
+
 /// Sign-in screen with email/password and Google Sign-In.
 class SignInScreen extends ConsumerStatefulWidget {
   /// Creates a [SignInScreen].
@@ -28,7 +28,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   @override
-
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -44,9 +43,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           password: _passwordController.text,
         );
   }
+
   Future<void> _googleSignIn() async {
     await ref.read(authNotifierProvider.notifier).signInWithGoogle();
   }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -159,13 +160,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
           ),
         ),
-
       ),
-
     );
-
   }
-
 }
-
-

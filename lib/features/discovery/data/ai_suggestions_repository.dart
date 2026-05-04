@@ -1,11 +1,13 @@
 // lib/features/discovery/data/ai_suggestions_repository.dart
 
+// ignore_for_file: document_ignores
+
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:tropicaguide/core/utils/logger.dart';
 
-// TODO(prod): Move this API key to a Cloud Function to keep it server-side.
+
 const String _geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
 /// A single activity suggestion returned by the Gemini AI.

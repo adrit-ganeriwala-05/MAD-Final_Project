@@ -207,7 +207,7 @@ class _TripStreamProviderElement extends AutoDisposeStreamProviderElement<Trip?>
 }
 
 String _$createTripNotifierHash() =>
-    r'5d8e54e85baa639ecc7bd3c58e8785dd6c75c9da';
+    r'5b63eccaf52a57f9aeb9bef58342020d1f496555';
 
 /// Notifier for create-trip form state.
 ///
@@ -225,7 +225,7 @@ final createTripNotifierProvider =
 );
 
 typedef _$CreateTripNotifier = AutoDisposeNotifier<AsyncValue<void>>;
-String _$joinTripNotifierHash() => r'ad1337e6f52620585a0c2d9a4ae1862a968ef6ae';
+String _$joinTripNotifierHash() => r'7db30a04558a75b2cefda0c213834941c0e7d229';
 
 /// Notifier for the join-trip-by-invite-code flow.
 ///

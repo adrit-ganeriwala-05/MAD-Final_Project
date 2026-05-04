@@ -239,67 +239,7 @@ class _ActivityListState extends ConsumerState<_ActivityList> {
 
 // ── Score legend banner ───────────────────────────────────────────────────────
 
-class _ScoreLegendBanner extends StatelessWidget {
-  const _ScoreLegendBanner();
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
-      ),
-      color: colorScheme.surfaceContainerLow,
-      child: Row(
-        children: [
-          Icon(
-            Icons.auto_awesome_rounded,
-            size: 14,
-            color: colorScheme.primary,
-          ),
-          const Gap(AppSpacing.sm),
-          Text(
-            'Optimiser scores: ',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-          const _LegendDot(color: Color(0xFF43A047), label: '≥75'),
-          const Gap(AppSpacing.sm),
-          const _LegendDot(color: Color(0xFFFFB300), label: '50–74'),
-          const Gap(AppSpacing.sm),
-          const _LegendDot(color: Color(0xFFE53935), label: '<50'),
-        ],
-      ),
-    );
-  }
-}
 
-class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.color, required this.label});
-  final Color color;
-  final String label;
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const Gap(AppSpacing.xs),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-      ],
-    );
-  }
-}
+
