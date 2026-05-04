@@ -190,3 +190,11 @@ AI (Claude) was used to debug specific bugs during development. All architecture
 ## License
 
 MIT — built for academic purposes at Georgia State University, 2026.
+
+---
+
+## For Graders
+
+The easiest way to test the app is to download the APK from the [v1.0 GitHub Release](https://github.com/adrit-ganeriwala-05/MAD-Final_Project/releases/tag/v1.0) and install it on an Android device or emulator.
+
+To run from source, contact aganeriwala1@student.gsu.edu for the required `google-services.json` and API key.
