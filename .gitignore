@@ -54,3 +54,4 @@ android/app/google-services.json
 # Cloud Functions build artifacts and dependencies
 functions/node_modules/
 functions/lib/
+lib/firebase_options.dart
