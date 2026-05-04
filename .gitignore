@@ -47,3 +47,10 @@ app.*.map.json
 # Firebase
 firebase/node_modules/
 firebase/emulator/data/
+
+# Firebase
+android/app/google-services.json
+
+# Cloud Functions build artifacts and dependencies
+functions/node_modules/
+functions/lib/
