@@ -4,24 +4,27 @@
 
 A collaborative travel planning app built with Flutter and Firebase for the Mobile App Development course at Georgia State University.
 
+**Student:** Adrit Ganeriwala (`aganeriwala1@student.gsu.edu`)
+**Solo Project · May 3, 2026**
+
 ---
 
 ## Features
 
-- **Auth** — Email/password sign-up, sign-in, password reset, session persistence
-- **Trip Dashboard** — Real-time list of all trips you're a member of
+- **Auth** — Email/password sign-up, sign-in, password reset, Google Sign-In, session persistence
+- **Trip Dashboard** — Real-time list of all trips you're a member of, with Hero cover images and budget progress bar
 - **Create Trip** — Name, destination, budget, dates — with confetti on creation 🎉
-- **Invite by Code** — Share a 6-character code; anyone can join your trip instantly
-- **Itinerary Builder** — Drag-and-drop activity scheduling with real-time Firestore sync
-- **Explainable Score Chips** — Distance / Budget / Time-fit scores written by Cloud Function
-- **AI Activity Suggestions** — Claude AI suggests activities for any destination
-- **Activity Discovery** — Browse 8 curated seed activities, filter by category
-- **Shared Checklist** — Atomic-transaction packing list with swipe-to-delete
+- **Invite by Code** — Share a 6-character cryptographically secure code; anyone can join instantly
+- **Itinerary Builder** — Drag-and-drop activity scheduling with real-time Firestore sync and batch position updates
+- **AI Activity Suggestions** — Gemini 2.5 Flash suggests 10 activities for any destination in JSON mode
+- **Activity Discovery** — Filter by category, search within results, add suggestions directly to a trip
+- **Shared Checklist** — Atomic-transaction packing list (Firestore `runTransaction`) with swipe-to-delete, grouped by category
 - **Trip Chat** — Real-time iMessage-style messaging between all trip members
-- **Cloud Function Optimiser** — TypeScript callable function scores and reorders activities
-- **Profile Screen** — Edit display name, daily budget, and travel pace preference
-- **Budget Progress Bar** — Visual spend tracker on each trip card
-- **Dark Mode** — Full light/dark theme, system-following
+- **Cloud Function Optimiser** — TypeScript callable function scores and reorders activities by budget fit, time fit, and variety
+- **Push Notifications (FCM)** — Foreground snackbar, background system notification, terminated deep-link on launch
+- **Firebase Storage** — 3 upload surfaces: profile avatars, trip cover photos, activity images
+- **Profile Screen** — Display name, daily budget, travel pace, appearance (System/Light/Dark)
+- **Security Rules** — Server-side member check on all reads and writes, deployed and emulator-validated
 
 ---
 
@@ -31,19 +34,20 @@ A collaborative travel planning app built with Flutter and Firebase for the Mobi
 lib/
   core/           # Shared infrastructure (theme, routing, design system, utils)
   features/
-    auth/         # Firebase Auth — sign-in, sign-up, password reset
-    trips/        # Trip CRUD, invite codes, real-time dashboard
-    itinerary/    # Activities, drag-and-drop builder, optimiser integration
+    auth/         # Firebase Auth — sign-in, sign-up, password reset, Google Sign-In
+    trips/        # Trip CRUD, invite codes, real-time dashboard, Storage cover photos
+    itinerary/    # Activities, drag-and-drop builder, optimiser integration, Storage images
     checklist/    # Atomic-transaction shared packing list
     chat/         # Real-time trip messaging
-    discovery/    # AI suggestions + curated seed activities
-    profile/      # User profile, preferences, bootstrap
+    discovery/    # Gemini 2.5 Flash AI suggestions
+    profile/      # User profile, preferences, avatar upload, bootstrap
 ```
 
-**State management** — Riverpod 2.x with `@riverpod` codegen (`AsyncNotifier`, `StreamProvider`)  
-**Routing** — GoRouter 14.x with typed routes and a `refreshListenable` auth guard  
-**Backend** — Firebase (Auth, Firestore, Storage, Cloud Functions, Crashlytics, Analytics)  
-**Cloud Functions** — TypeScript, Node 20, 2nd-gen callable functions deployed to `us-central1`
+**State management** — Riverpod 2.x with `@riverpod` codegen (`AsyncNotifier`, `StreamProvider`)
+**Routing** — GoRouter 14.x with typed routes and a `refreshListenable` auth guard
+**Backend** — Firebase (Auth, Firestore, Storage, Cloud Functions, FCM, Crashlytics, Analytics)
+**Cloud Functions** — TypeScript, Node 20, 2nd-gen deployed to `us-central1`
+**AI** — Google Gemini 2.5 Flash via HTTP, JSON mode enforced, API key via `--dart-define`
 
 ---
 
@@ -55,34 +59,40 @@ lib/
 | Language | Dart 3.11.4 with sound null safety |
 | State Management | Riverpod 2.x + riverpod_generator |
 | Routing | GoRouter 14.x |
-| Backend | Firebase (Auth, Firestore, Storage, Functions) |
-| Cloud Functions | TypeScript, Node 20 |
-| AI Suggestions | Anthropic Claude API |
-| Lints | very_good_analysis + flutter_lints |
+| Backend | Firebase (Auth, Firestore, Storage, Functions, FCM, Crashlytics, Analytics) |
+| Cloud Functions | TypeScript, Node 20, 2nd-gen |
+| AI Suggestions | Google Gemini 2.5 Flash |
+| Lints | very_good_analysis |
 
 ---
 
 ## How to Run
 
-```bash
+```zsh
 # 1. Install dependencies
 flutter pub get
 
 # 2. Run codegen (required after any model/provider changes)
 dart run build_runner build --delete-conflicting-outputs
 
-# 3. Run on Android emulator (dev mode — uses Firebase emulators)
-flutter run --dart-define=ENVIRONMENT=dev
+# 3. Run in dev mode (uses Firebase emulators)
+flutter run --dart-define=ENVIRONMENT=dev --dart-define=GEMINI_API_KEY=your-key
 
 # 4. Run in production mode (uses live Firebase project)
-flutter run --dart-define=ENVIRONMENT=prod
+flutter run --dart-define=ENVIRONMENT=prod --dart-define=GEMINI_API_KEY=your-key
+
+# 5. Build release APK
+flutter build apk --dart-define=ENVIRONMENT=prod --dart-define=GEMINI_API_KEY=your-key
+# Output: build/app/outputs/flutter-apk/app-release.apk
 ```
+
+> **Note:** The Gemini API key is passed at build time via `--dart-define`. It is never stored in source code.
 
 ---
 
 ## How to Run Emulators
 
-```bash
+```zsh
 # Start Auth, Firestore, and Storage emulators
 firebase emulators:start --only auth,firestore,storage --project tropicaguide-adrit-2026
 
@@ -94,59 +104,86 @@ firebase emulators:start --only auth,firestore,storage --project tropicaguide-ad
 
 ## How to Seed Demo Data
 
-```bash
+```zsh
 # Emulators must be running first
 node firebase/emulator/seed.js
 ```
 
 ---
 
-## Demo Credentials
+## Demo Credentials (dev/emulator mode only)
 
 | User | Email | Password |
 |---|---|---|
 | Alice | alice@demo.com | demo1234 |
 | Bob | bob@demo.com | demo1234 |
 
-**Invite codes (pre-seeded):**
+**Pre-seeded invite codes:**
 - Cancún trip: `CAN4X9`
 - Bali trip: `BALI77`
 
 ---
 
-## Testing
+## Cloud Functions
 
-```bash
-# Flutter unit + widget tests
-flutter test
+Three functions deployed to `us-central1` on the Blaze plan:
 
-# Firestore security rules tests (emulators must be running)
-cd firebase && npx jest --forceExit
+| Function | Type | Purpose |
+|---|---|---|
+| `optimiseItinerary` | Callable (2nd gen) | Scores and ranks activities by budget fit, time fit, variety |
+| `onActivityAdded` | Firestore trigger | Sends FCM push notification to trip members |
+| `onMessageSent` | Firestore trigger | Sends FCM push notification to trip members |
 
-# Cloud Function unit tests
-cd functions && npm install && npm test
+```zsh
+# Deploy functions
+firebase deploy --only functions --project tropicaguide-adrit-2026
+
+# Run unit tests (10/10 passing)
+cd functions && npx jest --verbose
 ```
 
 ---
 
-## AI Activity Suggestions
+## Security Rules
 
-The discovery screen uses the Anthropic Claude API to suggest activities for any destination. To enable it:
+All Firestore and Storage access is enforced server-side via a `isTripMember()` helper that checks the requesting user's UID against the trip's `memberIds` array. Rules are deployed to production and validated in the Firebase Emulator Suite.
 
-1. Open `lib/features/discovery/data/ai_suggestions_repository.dart`
-2. Replace `YOUR_ANTHROPIC_API_KEY_HERE` with your real API key
-3. In production, move the key to a Cloud Function (the TODO comment marks the exact location)
+```zsh
+# Deploy rules and indexes
+firebase deploy --only firestore:rules,firestore:indexes --project tropicaguide-adrit-2026
+```
 
 ---
 
-## Known Limitations & Next Steps
+## Testing
 
-- **Google Sign-In** — Wired in the stack but not implemented; email/password only for now
-- **Push Notifications (FCM)** — Declared in pubspec; topic subscriptions not wired to UI
-- **Map View** — Activities show as a list; a Google Maps pin view would be the next visual upgrade
-- **API Key Security** — The Anthropic API key is currently a client-side constant; production builds should proxy through a Cloud Function
-- **Image Upload** — Firebase Storage is configured but activity/trip images use placeholder icons; a real image picker would complete the UI
-- **Pagination** — Trip and activity lists load all documents; cursor-based pagination needed for scale
+```zsh
+# Flutter static analysis (zero issues)
+flutter analyze
+
+# Flutter unit tests
+flutter test
+
+# Cloud Function unit tests (10/10 passing)
+cd functions && npx jest --verbose
+```
+
+---
+
+## Version History
+
+| Version | Date | Scope |
+|---|---|---|
+| v0.1 | Apr 14–20 | Foundation — config, auth, routing |
+| v0.2 | Apr 21–24 | Core features — trips CRUD, itinerary, Firestore sync |
+| v0.3 | Apr 25–29 | Enhancement — checklist, chat, FCM |
+| v1.0 | May 3 | Final delivery — AI discovery, security rules, polish |
+
+---
+
+## AI Usage
+
+AI (Claude) was used to debug specific bugs during development. All architecture decisions, schema design, and feature planning were made independently. See `AI_Usage_Log.md` for the full log.
 
 ---
 
